@@ -1,4 +1,7 @@
 import os
+import sys
+import logging
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -41,3 +44,7 @@ LOGGING = {
         },
     }
 }
+
+
+if 'test' in sys.argv:
+    logging.disable(logging.ERROR)

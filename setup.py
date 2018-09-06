@@ -17,6 +17,7 @@ author_email = 'git@theorangeone.net'
 license = 'BSD'
 install_requires = [
     "Django>=1.8",
+    "apscheduler"
 ]
 
 long_description = """"""
