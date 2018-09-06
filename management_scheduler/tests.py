@@ -1,17 +1,25 @@
 from django.test import TestCase
 from unittest.mock import MagicMock, patch
 from management_scheduler.management.commands.scheduler import Command
+from django.core.management import call_command
 
 
-class BaseTestCase(TestCase):
+@patch('signal.signal')
+@patch('atexit.register')
+@patch('functools.partial')
+class SchedulerTestCase(TestCase):
     def setUp(self):
         self.command = Command()
         self.command.scheduler = MagicMock()
 
-    @patch('signal.signal')
-    @patch('atexit.register')
-    def test_management_command_configures_scheduler(self, signal, register):
-        self.command.handle()
-        self.assertTrue(self.command.scheduler.start.called)
-        self.assertTrue(signal.called)
-        self.assertTrue(register.called)
+    def test_management_command_configures_scheduler(self, partial, signal, register):
+        settings = {
+            'noop': {'trigger': 'interval', 'minutes': 1}
+        }
+        with self.settings(MANAGEMENT_SCHEDULER=settings):
+            self.command.handle()
+        args, _ = partial.call_args_list[0]
+        self.assertEqual(args[0], call_command)
+        self.assertEqual(args[1], 'noop')
+        _, kwargs = self.command.scheduler.add_job.call_args_list[0]
+        self.assertEqual(kwargs, settings['noop'])

@@ -45,6 +45,7 @@ LOGGING = {
     }
 }
 
+IN_TEST = 'test' in sys.argv
 
-if 'test' in sys.argv:
+if IN_TEST:
     logging.disable(logging.ERROR)
