@@ -11,9 +11,9 @@ import sys
 name = 'django-management-scheduler'
 package = 'management_scheduler'
 description = ''
-url = 'https://theorangeone.net'
-author = 'TheOrangeOne'
-author_email = 'git@theorangeone.net'
+url = 'http://www.dabapps.com'
+author = 'DabApps'
+author_email = 'contact@dabapps.com'
 license = 'BSD'
 install_requires = [
     "Django>=1.8",
@@ -21,6 +21,7 @@ install_requires = [
 ]
 
 long_description = """"""
+
 
 def get_version(package):
     """
