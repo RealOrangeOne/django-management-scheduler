@@ -1,13 +1,13 @@
-from apscheduler.schedulers.blocking import BlockingScheduler
-from apscheduler.executors.pool import ThreadPoolExecutor
-from django.core.management.base import BaseCommand
-from django.conf import settings
-from django.core.management import call_command
 import atexit
+import functools
 import logging
 import signal
-import functools
 
+from apscheduler.executors.pool import ThreadPoolExecutor
+from apscheduler.schedulers.blocking import BlockingScheduler
+from django.conf import settings
+from django.core.management import call_command
+from django.core.management.base import BaseCommand
 
 logger = logging.getLogger(__file__)
 
@@ -24,11 +24,15 @@ class Command(BaseCommand):
 
     def create_scheduler(self):
         logger.info("Creating scheduler")
-        self.scheduler = self.scheduler or BlockingScheduler(executors={'default': ThreadPoolExecutor(max_workers=4)})
+        self.scheduler = self.scheduler or BlockingScheduler(
+            executors={"default": ThreadPoolExecutor(max_workers=4)}
+        )
 
     def configure_scheduler(self):
         logger.info("Configuring scheduler")
-        for command_name, kwargs in getattr(settings, 'MANAGEMENT_SCHEDULER', {}).items():
+        for command_name, kwargs in getattr(
+            settings, "MANAGEMENT_SCHEDULER", {}
+        ).items():
             wrapped = functools.partial(call_command, command_name)
             wrapped.__qualname__ = command_name
             self.scheduler.add_job(wrapped, **kwargs)

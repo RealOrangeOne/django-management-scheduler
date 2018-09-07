@@ -13,7 +13,17 @@ echo "Ok!"
 
 echo "--------------"
 echo "Running Flake8 linting"
-flake8 project --ignore=E128,E501 --exclude="migrations,settings,*/wsgi.py"
+flake8 management_scheduler --ignore=E128,E501 --exclude="migrations,settings,*/wsgi.py"
+echo "Ok!"
+
+echo "--------------"
+echo "Running Isort"
+isort -rc -c management_scheduler/
+echo "Ok!"
+
+echo "--------------"
+echo "Running Black"
+black management_scheduler/ --check
 echo "Ok!"
 
 echo "--------------"
