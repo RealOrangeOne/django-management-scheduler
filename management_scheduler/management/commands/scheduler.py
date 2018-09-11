@@ -6,7 +6,7 @@ import signal
 from apscheduler.executors.pool import ThreadPoolExecutor
 from apscheduler.schedulers.blocking import BlockingScheduler
 from django.conf import settings
-from django.core.management import call_command
+from django.core.management import call_command, get_commands
 from django.core.management.base import BaseCommand
 
 logger = logging.getLogger(__file__)
@@ -30,12 +30,16 @@ class Command(BaseCommand):
 
     def configure_scheduler(self):
         logger.info("Configuring scheduler")
-        for command_name, kwargs in getattr(
+        for command_name, (trigger, kwargs) in getattr(
             settings, "MANAGEMENT_SCHEDULER", {}
         ).items():
+            if command_name not in get_commands():
+                raise LookupError(
+                    "{} is not a valid management command".format(command_name)
+                )
             wrapped = functools.partial(call_command, command_name)
             wrapped.__qualname__ = command_name
-            self.scheduler.add_job(wrapped, **kwargs)
+            self.scheduler.add_job(wrapped, trigger, **kwargs)
 
     def start_scheduler(self):
         logger.info("Starting scheduler")
