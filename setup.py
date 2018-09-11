@@ -11,7 +11,7 @@ import sys
 name = 'django-management-scheduler'
 package = 'management_scheduler'
 description = ''
-url = 'http://www.dabapps.com'
+url = 'https://www.dabapps.com'
 author = 'DabApps'
 author_email = 'contact@dabapps.com'
 license = 'BSD'
