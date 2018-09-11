@@ -30,6 +30,19 @@ class SchedulerTestCase(TestCase):
         self.assertEqual(kwargs, settings["noop"][1])
         self.assertEqual(args[1], settings["noop"][0])
 
+    def test_supports_multiple_commands(self, partial, signal, register):
+        settings = {
+            "noop": ("interval", {"minutes": 10}),
+            "scheduler": ("interval", {"minutes": 20}),
+        }
+        with self.settings(MANAGEMENT_SCHEDULER=settings):
+            self.command.handle()
+        self.assertEqual(len(self.command.scheduler.add_job.call_args_list), 2)
+        self.assertEqual(len(partial.call_args_list), 2)
+        self.assertListEqual(
+            [job[0][1] for job in partial.call_args_list], ["noop", "scheduler"]
+        )
+
     def test_validates_args(self, partial, signal, register):
         partial.return_value = noop
         settings = {"noop": ("interval", {"minutes": 10})}
