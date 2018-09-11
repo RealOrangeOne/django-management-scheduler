@@ -11,8 +11,8 @@ def noop():
     pass
 
 
-@patch("signal.signal")
 @patch("atexit.register")
+@patch("signal.signal")
 @patch("functools.partial")
 class SchedulerTestCase(TestCase):
     def setUp(self):
@@ -23,10 +23,10 @@ class SchedulerTestCase(TestCase):
         settings = {"noop": ("interval", {"minutes": 10})}
         with self.settings(MANAGEMENT_SCHEDULER=settings):
             self.command.handle()
-        args, _ = partial.call_args_list[0]
+        args, _ = partial.call_args
         self.assertEqual(args[0], call_command)
         self.assertEqual(args[1], "noop")
-        args, kwargs = self.command.scheduler.add_job.call_args_list[0]
+        args, kwargs = self.command.scheduler.add_job.call_args
         self.assertEqual(kwargs, settings["noop"][1])
         self.assertEqual(args[1], settings["noop"][0])
 
@@ -79,8 +79,21 @@ class SchedulerTestCase(TestCase):
             MANAGEMENT_SCHEDULER={"noop": ("interval", {"minutes": 10})}
         ):
             self.command.handle()
-        self.assertEqual(partial.call_args_list[0][0][1], "noop")
+        self.assertEqual(partial.call_args[0][1], "noop")
         self.assertEqual(
             get_callable_name(self.command.scheduler.add_job.call_args_list[0][0][0]),
             "noop",
+        )
+
+    def test_shutdown(self, partial, signal, register):
+        self.command.scheduler.running = True
+        self.command.shutdown()
+        self.command.scheduler.shutdown.assert_called_with(wait=False)
+
+    def test_signal_handler_calls_shutdown(self, partial, signal, register):
+        self.command.handle()
+        self.assertEqual(register.call_args[0][0], self.command.shutdown)
+        self.assertEqual(
+            [args[1] for args, kwargs in signal.call_args_list],
+            [self.command.shutdown, self.command.shutdown],
         )
