@@ -43,7 +43,7 @@ class Command(BaseCommand):
 
     def start_scheduler(self):
         logger.info("Starting scheduler")
-        if not settings.IN_TEST:
+        if not getattr(settings, 'IN_TEST', False):
             self.scheduler.start()
 
     def setup_signals(self):
